@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/demos/stocqt">
+        <file>content/Button.qml</file>
+        <file>content/CheckBox.qml</file>
+        <file>content/UserChart.qml</file>
+        <file>content/UserListModel.qml</file>
+        <file>content/UserListView.qml</file>
+        <file>content/IndexModel.qml</file>
+        <file>content/IndexView.qml</file>
+        <file>content/images/wheel-touch.png</file>
+        <file>content/images/wheel.png</file>
+        <file>content/images/icon-left-arrow.png</file>
+        <file>content/UserInfo.qml</file>
+        <file>wearyMaster.qml</file>
+        <file>content/UserSettingsPanel.qml</file>
+        <file>LogWin.qml</file>
+    </qresource>
+</RCC>
