@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import IOs 1.0
+import SQL 1.0
 Rectangle {
     id: firstwin
     width: 300
@@ -18,7 +19,7 @@ Rectangle {
     onCreateView: firstwin.log()
     onLog:transferAc(accountenter.text)
 
-    function status(){
+/*    function status(){
        console.log("serv had sent message");
        var statu = toconnect.text;
        console.log(statu);
@@ -32,12 +33,9 @@ Rectangle {
        }
        else if(statu[0] == 2){
          if(statu[1] == 1){
-           //firstwin.transferAc(accountenter.text);
            console.log("log successfully");
            refer.text = "Log Successfully! Enjoy it!"
-          // firstwin.log();
            firstwin.createView("qrc:/demos/stocqt/wearyMaster.qml");
-           //toconnect.unconnectHost();
          }
          else if(statu[1] == 0){
            console.log("log failurely");
@@ -45,6 +43,26 @@ Rectangle {
          }
        }
        else;
+    }*/
+    MySQL{
+        id:mySQL
+        onRegisterStatusChanged:{registerProcess(status)}
+        onLoginStatusChanged: {logProcess(status)}
+        function logProcess(status){
+            if(status === true){
+                console.log("log successfully")
+                refer.text = "Log Successfully! Enjoy it!"
+                firstwin.createView("qrc:/demos/stocqt/wearyMaster.qml")
+            }
+            else{
+                console.log("log failurely")
+                refer.text = "You entered error account or password,Try Again!"
+            }
+        }
+        function registerProcess(status){
+            if(status === true) refer.text = "Register Successfully! Use it when next log"
+            else  refer.text = "You entered error account or password,Try Again!"
+        }
     }
 
     Clien {
@@ -52,7 +70,8 @@ Rectangle {
         onTextChanged:status()
     }
 
-    function tologOrRegister(order) {
+
+    function logOrRegister(order) {
                      console.log("MouseArea is clicked");
                      var ac = accountenter.text;
                      var pwd = pwdenter.text;
@@ -74,19 +93,11 @@ Rectangle {
                      if(errch === 1)
                          refer.text = "Account or password has illegal character.reenter again! "
                      else{
-                         refer.text = "connecting server to login";
-                         var aclen = ac.length;
-                         var pwdlen = pwd.length;
-                         var len = (4 + aclen + pwdlen).toString();
-                         len = "00" + len;
-                         if(aclen.toString().length===1)
-                             aclen="0"+aclen.toString();
-                         if(pwdlen.toString().length===1)
-                             pwdlen="0"+pwdlen.toString();
-                         toconnect.connectHost();
-                         toconnect.construction = order+len+aclen+ac+pwdlen+pwd;
-                         console.log(order+len+aclen+ac+pwdlen+pwd);
-                         toconnect.writeMessage();
+                         refer.text ="logging or registering"
+                         if(order === 2)
+                             mySQL.loginAccount(ac, pwd)
+                         else if(order === 1)
+                             mySQL.registerAccount(ac, pwd, "nameqml", "g")
                      }
                  }
     TextInput {
@@ -217,7 +228,7 @@ Rectangle {
                     rectangle4.color = "#14aaff"
                 }
             }
-            onClicked: firstwin.tologOrRegister("02");
+            onClicked: firstwin.logOrRegister(2)
         }
 
         Rectangle {
@@ -261,7 +272,7 @@ Rectangle {
                     rectangle4.color = "#14aaff"
                 }
             }
-            onClicked:firstwin.tologOrRegister("01");
+            onClicked:firstwin.logOrRegister(1);
         }
 
         Rectangle {

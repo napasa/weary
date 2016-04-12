@@ -40,6 +40,8 @@
 
 import QtQuick 2.0
 import IOs 1.0
+import SQL 1.0
+
 Rectangle {
     id: root
     width: 320
@@ -57,21 +59,31 @@ Rectangle {
         id: baseData
         onTextChanged:view.setBaseData()
     }
+    MySQL{
+        id:mySQL
+        onRetriveBaseInfoStatusChanged: {baseInfoProcess(status)}
+        function baseInfoProcess(status){
+            if(status === true){
+                try{
+                    view.setBaseData(getBaseInfo())
+                }catch(e)
+                {
+                    console.log("parsed a error json")
+                }
+                console.log("retrive base info successfully")
+            }
+            else{
+                console.log("base info failurely")
+            }
+        }
+    }
 
     function updateBaseUserData(){
-        //io.source = "file:///home/yhs/Desktop/stock.json";
-        //io.source = "file:///home/yhs/serv/basedata.json"
-       // io.read();
-       // var data = JSON.parse(io.text);
-        //var j = data.length
-        //for(var i =0; i < data.length; i++){
-        //    view.model.append(data[i]);
-       // }
         baseData.connectHost();
         baseData.construction = "030000";
         baseData.writeMessage();
     }
-    Component.onCompleted: updateBaseUserData()
+    Component.onCompleted: mySQL.retriveAllUsersBaseInfo();
     ListView {
         id: view
         anchors.fill: parent
@@ -82,35 +94,10 @@ Rectangle {
         focus: true
         snapMode: ListView.SnapToItem
         model: UserListModel{}
-        function setBaseData() {
-           /* var records = clien.text.split(';');
-            console.log(records[0]);
-            console.log(records.length);
-            var index = 0;
-            for(;index < records.length;index++){
-                var data = records[index].split(',');
-                model.setProperty(index, "value", data[0]);
-                var today = parseFloat(data[0]);
-                var yesterday = parseFloat(data[1]);
-                var change = today - yesterday;
-                if (change >= 0.0)
-                    model.setProperty(index, "change", "+" + change.toFixed(2));
-                else
-                    model.setProperty(index, "change", change.toFixed(2));
-
-                var changePercentage = (change / yesterday) * 100.0;
-                if (changePercentage >= 0.0)
-                    model.setProperty(index, "changePercentage", "+" + changePercentage.toFixed(2) + "%");
-                else
-                    model.setProperty(index, "changePercentage", changePercentage.toFixed(2) + "%");
-                console.log(data[0]);
-                console.log(data[1]);
-            }
-            */
-            var data = JSON.parse(baseData.text);
-            console.log(baseData.text);
+        function setBaseData(jsonText) {
+            var data = JSON.parse(jsonText);
+            console.log(jsonText);
             for(var i=0; i<data.length; i++){
-                //UserListModel.append(data[i]);
                 view.model.append(data[i]);
             }
         }
@@ -121,8 +108,8 @@ Rectangle {
 
         onCurrentIndexChanged: {
             mainRect.listViewActive = 0;
-            root.currentUserId = model.get(currentIndex).userId;
-            root.currentUserName = model.get(currentIndex).gender;
+            root.currentUserId = model.get(currentIndex).id;
+            root.currentUserName = model.get(currentIndex).sex;
         }
 
         delegate: Rectangle {
@@ -145,11 +132,11 @@ Rectangle {
                 width: 125
                 height: 40
                 color: "#000000"
-                font.family: "Open Sans"
+                font.family: "DejaVu Sans Mono"
                 font.pointSize: 20
                 font.weight: Font.Bold
                 verticalAlignment: Text.AlignVCenter
-                text: userId
+                text: id
             }
 
             Text {
@@ -161,13 +148,12 @@ Rectangle {
                 width: 190
                 height: 40
                 color: "#000000"
-                font.family: "Open Sans"
+                font.family: "DejaVu Sans Mono"
                 font.pointSize: 20
                 font.bold: true
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
-                text: value
-                //Component.onCompleted: view.sendRequest();
+                text: score
             }
 
             Text {
@@ -179,12 +165,12 @@ Rectangle {
                 width: 135
                 height: 40
                 color: "#328930"
-                font.family: "Open Sans"
+                font.family: "DejaVu Sans Mono"
                 font.pointSize: 20
                 font.bold: true
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
-                text: change
+                text: changed
                 onTextChanged: {
                     if (parseFloat(text) >= 0.0)
                         color = "#328930";
@@ -207,7 +193,7 @@ Rectangle {
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 verticalAlignment: Text.AlignVCenter
-                text: gender
+                text: sex
             }
 
             Text {
@@ -223,7 +209,7 @@ Rectangle {
                 font.bold: false
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
-                text: changePercentage
+                text:changed/score
                 onTextChanged: {
                     if (parseFloat(text) >= 0.0)
                         color = "#328930";

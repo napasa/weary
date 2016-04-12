@@ -42,18 +42,5 @@ import QtQuick 2.0
 import IOs 1.0
 ListModel {
     id: users
-/*   function updateBaseUserData(){
-       io.source = "/home/yhs/Desktop/stock.json";
-       io.read();
-       var data = io.text;
-       for(var i =0; i < data.length; i++){
-           users.append(data[i]);
-       }
 
-   }
- Component.onCompleted: updateBaseUserData()
-   FileIO{
-       id: io
-   }
-   */
 }

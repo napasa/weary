@@ -324,7 +324,6 @@ Rectangle {
             if (!indexModel.ready) {
                 return;
             }
-
             numPoints = indexModel.indexOf(chart.startDate);
 
             if (chart.gridSize == 0)

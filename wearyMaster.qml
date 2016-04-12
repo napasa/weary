@@ -41,6 +41,7 @@
 import QtQuick 2.0
 import QtQml.Models 2.1
 import IOs 1.0
+import SQL 1.0
 import "./content"
 
 Rectangle {
@@ -51,10 +52,9 @@ Rectangle {
     property int listViewActive: 0
     property string uploadPath: "file:///home/yhs/serv/user01"
     property string account:""
-    //onAccountChanged: banner.uploadData()
     function getmsg(msg){
         account = msg;
-        console.log("get get get get"+account);
+        console.log("get login account:"+account);
     }
 
     Rectangle {
@@ -181,7 +181,7 @@ Rectangle {
             if (currentIndex == 1)
                 listViewActive = 0;
         }
-        function updateIndexModel(){
+       /* function updateIndexModel(){
             console.log("update get Msg");
             console.log(clien.text);
             var records = clien.text.split("|");
@@ -200,16 +200,37 @@ Rectangle {
             }
             if (userIndex.count > 0) {
                 userIndex.ready = true;
-                userIndex.userScore = userIndex.get(0).adjusted;
+                userIndex.userScore = userIndex.get(0).changed;
                 userIndex.userScoreChanged = userIndex.count > 1 ?
                             (Math.round((userIndex.userScore - userIndex.get(1).pulse) * 100) / 100) : 0;
                 userIndex.dataReady(); //emit signal
             }
-        }
+        }*/
 
         Clien {
             id:clien
             onTextChanged: root.updateIndexModel()
+        }
+        MySQL{
+            id : mySQL
+            onRetriveDetailBaseStatusChanged: {updateIndexModel(status)}
+            /*date, pressure heartRate temperature pulse score changed*/
+            function updateIndexModel(status){
+                if(status === true){
+                    console.log(getDetailInfo())
+                    var detailInfo = JSON.parse(getDetailInfo())
+                    console.log("detailInfo length:" + detailInfo.length)
+                    userIndex.clear()
+                    for(var i=0; i<detailInfo.length; i++){
+                        userIndex.append(detailInfo[i])
+                    }
+                    if(userIndex.count>0){
+                        userIndex.ready = true
+                        userIndex.dataReady()
+                    }
+                    else userIndex.ready = false
+                }
+            }
         }
 
         function sendRequest(){
@@ -230,7 +251,8 @@ Rectangle {
             id: userIndex
             userId: listView.currentUserId
             userName: listView.currentUserName
-            onUserIdChanged: root.sendRequest()
+            //onUserIdChanged: root.sendRequest()
+            onUserIdChanged: mySQL.retriveUserDetailInfo(userId)
             onDataReady: {
                 root.positionViewAtIndex(1, ListView.SnapPosition)
                 indexView.update()

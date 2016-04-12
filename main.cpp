@@ -37,8 +37,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-//#include "../../shared/shared.h"
-//DECLARATIVE_EXAMPLE_MAIN(demos/stocqt/stocqt)
+
 #include <QDir>
 #include <QGuiApplication>
 #include <QQmlEngine>
@@ -49,11 +48,13 @@
 #include "fileio.h"
 #include "clien.h"
 #include "myquickview.h"
+#include "interactsql.h"
 int main(int argc, char* argv[])
 {
     QGuiApplication app(argc,argv);
     qmlRegisterType<FileIO>("IOs", 1, 0, "FileIO");
     qmlRegisterType<Clien>("IOs", 1, 0, "Clien");
+    qmlRegisterType<InteractSQL>("SQL", 1,0, "MySQL");
     app.setOrganizationName("QtProject");
     app.setOrganizationDomain("qt-project.org");
     app.setApplicationName(QFileInfo(app.applicationFilePath()).baseName());
