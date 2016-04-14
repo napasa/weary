@@ -18,32 +18,6 @@ Rectangle {
     signal transferAc(string Ac)
     onCreateView: firstwin.log()
     onLog:transferAc(accountenter.text)
-
-/*    function status(){
-       console.log("serv had sent message");
-       var statu = toconnect.text;
-       console.log(statu);
-       console.log(statu[0]);
-       if(statu[0] == 1){
-         if(statu[1] == 1){
-           refer.text = "Register Successfully! Use it when next log";
-         }
-         else if(statu[1] == 0)
-           refer.text = "You accounts registered. Try A New!";
-       }
-       else if(statu[0] == 2){
-         if(statu[1] == 1){
-           console.log("log successfully");
-           refer.text = "Log Successfully! Enjoy it!"
-           firstwin.createView("qrc:/demos/stocqt/wearyMaster.qml");
-         }
-         else if(statu[1] == 0){
-           console.log("log failurely");
-           refer.text = "You entered error account or password,Try Again!";
-         }
-       }
-       else;
-    }*/
     MySQL{
         id:mySQL
         onRegisterStatusChanged:{registerProcess(status)}

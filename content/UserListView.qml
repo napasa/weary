@@ -52,6 +52,8 @@ Rectangle {
 
     property string currentUserId: ""
     property string currentUserName: ""
+    property double currentScore
+    property  double  currentChanged
     FileIO{
         id: io
     }
@@ -110,6 +112,8 @@ Rectangle {
             mainRect.listViewActive = 0;
             root.currentUserId = model.get(currentIndex).id;
             root.currentUserName = model.get(currentIndex).sex;
+            root.currentScore = model.get(currentIndex).score;
+            root.currentChanged = model.get(currentIndex).changed;
         }
 
         delegate: Rectangle {

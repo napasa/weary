@@ -13,15 +13,18 @@ InteractSQL::InteractSQL(QObject *parent, const QString &host, const QString &da
         stmt = con->createStatement();
 
         QString str_prep_stmt_0="INSERT INTO baseInfo(id, pwd, name, sex, score, changed, uploadTimes) VALUE(?,?,?,?,?,?,?)" ;
-        QString str_prep_stmt_1 = QString("SELECT date, heartRate, temperature, pressure, pulse, score, changed FROM ").append(DETAITABLE)\
-                .append(" WHERE id= ? ORDER BY date DESC");
+        QString str_prep_stmt_1 = QString("SELECT DISTINCT date, heartRate, temperature, pressure, pulse, score, changed FROM ").append(DETAITABLE)\
+                .append(" WHERE id= ? AND date >DATE_SUB(?, INTERVAL ? DAY) ORDER BY date DESC");
         QString str_prep_stmt_2 = QString("INSERT INTO detailInfo(id, date, heartRate, temperature, pressure, pulse) VALUE(?, ?, ?, ?, ?, ?)");
         QString str_prep_stmt_3 = QString("UPDATE ").append(BASEINFOTABLE).append(" SET uploadTimes=?, changed=?, score=? WHERE id=?");
+        QString str_prep_stmt_4 = QString("SELECT AVG(heartRate), AVG(temperature), AVG(pressure), AVG(pulse) From  ").append(DETAITABLE)\
+                .append(" WHERE id=? AND date BETWEEN ? AND ? GROUP BY id");
 
         prep_register_stmt = con->prepareStatement(str_prep_stmt_0.toStdString());
         prep_retriveIndexInfo_stmt = con->prepareStatement(str_prep_stmt_1.toStdString());
         prep_uploadInfo_stmt = con->prepareStatement(str_prep_stmt_2.toStdString());
         prep_alterUploadTimes_stmt = con->prepareStatement(str_prep_stmt_3.toStdString());
+        prep_yearDatailInfo_stmt = con->prepareStatement(str_prep_stmt_4.toStdString());
     }catch (SQLException &e) {
             cout << "ERROR: SQLException in " << __FILE__;
             cout << " (" << __func__<< ") on line " << __LINE__ << endl;
@@ -185,17 +188,31 @@ QString InteractSQL::formatPair(const string &key, const long double &value)
     return QString::fromStdString( std::string(" \"").append(key).append("\": ").append(std::to_string(value)));
 }
 
-bool InteractSQL::retriveUserDetailInfo(const QString &userID)
+bool InteractSQL::retriveUserDetailInfo(const QString &userID, DataLength dataLength)
 {
 try{
-   int i=0;
-   QVector<QString> indexPair;
-   QVector<QString> infoPair;
+    int i=0;
+    QVector<QString> indexPair;
+    QVector<QString> infoPair;
 
-   prep_retriveIndexInfo_stmt->setString(1, userID.toStdString());
-   res = prep_retriveIndexInfo_stmt->executeQuery();
-
-   infoPair.clear();
+    if(dataLength == DataLength::MAX || dataLength==DataLength::YEAR){
+ /*       prep_retriveIndexInfo_stmt->setString(1, userID.toStdString());
+        prep_retriveIndexInfo_stmt->setString(2, QDate::currentDate().toString(Qt::ISODate).toStdString());
+        prep_retriveIndexInfo_stmt->setInt(3, 365);*/
+        return false;
+    }
+    else if(dataLength == DataLength::WEEK){
+        prep_retriveIndexInfo_stmt->setString(1, userID.toStdString());
+        prep_retriveIndexInfo_stmt->setString(2, QDate::currentDate().toString(Qt::ISODate).toStdString());
+        prep_retriveIndexInfo_stmt->setInt(3, 7);
+    }
+    else if(dataLength == DataLength::MONTH){
+        prep_retriveIndexInfo_stmt->setString(1, userID.toStdString());
+        prep_retriveIndexInfo_stmt->setString(2, QDate::currentDate().toString(Qt::ISODate).toStdString());
+        prep_retriveIndexInfo_stmt->setInt(3, 30);
+    }
+        res = prep_retriveIndexInfo_stmt->executeQuery();
+    infoPair.clear();
     while (res->next()) {
         i=0;
         indexPair.clear();
@@ -263,7 +280,7 @@ bool InteractSQL::uploadTodayInfo(const QString &userID, const QString &date, co
         /****whether id is registered***/
         sqlStmt.clear();
         sqlStmt.append( "SELECT DISTINCT id,score,uploadTimes FROM ").append(BASEINFOTABLE)\
-                .append(" WHERE id=\"").append(userID).append("\"");
+                .append(" WHERE id='").append(userID).append("'");
         res = stmt->executeQuery(sqlStmt.toStdString());
         while(res->next()){
             if(res->getString(QString("id").toStdString()) != userID.toStdString()){
@@ -306,7 +323,7 @@ bool InteractSQL::uploadTodayInfo(const QString &userID, const QString &date, co
         affectedColumns = prep_alterUploadTimes_stmt->executeUpdate();
         con->commit();
         if(affectedColumns!=0){
-            emit uploadStatusChanged(false);
+            emit uploadStatusChanged(true);
             return true;
         }
     }catch (SQLException &e) {

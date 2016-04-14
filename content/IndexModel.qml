@@ -8,7 +8,7 @@ ListModel {
     property bool ready: false
     property real userScore: 0.0
     property real userScoreChanged: 0.0
-
+    property string dataLength: "WEEK"
     signal dataReady
 
     function indexOf(date) {

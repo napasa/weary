@@ -1,42 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
 
 import QtQuick 2.0
 import QtQml.Models 2.1
@@ -72,38 +33,13 @@ Rectangle {
                 console.log(upload.text);
             }
         }
-        function format(integer){
-            var integerlen = integer.toString().length;
-            var formated;
-            if(integerlen == 2)
-                formated = "00" + integer;
-            else if(integerlen == 3)
-                formated = "0" + integer;
-            return formated;
-        }
-
         function uploadData(){
-            var index = 0;
-            io.source = uploadPath;
-            io.read();
-            var data = io.text;
-            var datalen = data.length;
-            var ac = account;
-            var aclen = ac.length;
-            var alllen = 6+aclen+datalen;
-            var formatdatalen = format(datalen);
-            var formatalllen = format(alllen);
-            if(aclen.toString().length == 1)
-                aclen = "0"+ aclen;
-            console.log("datalen="+datalen);
-            console.log(formatdatalen)
-            console.log(alllen);
-            console.log(formatalllen);
-            var newData = "05" + formatalllen + aclen + ac + formatdatalen + data
-            console.log(newData);
-            upload.connectHost();
-            upload.construction = newData;
-            upload.writeMessage();
+            io.setSource("file:///home/yhs/Desktop/pdf/healthyInfo")
+            io.read()
+            console.log(io.text)
+            var newData = JSON.parse(io.text)
+            mySQL.uploadTodayInfo(account, newData[0]["date"], newData[0]["heartRate"],
+                                  newData[0]["temperature"], newData[0]["pressure"], newData[0]["pulse"])
         }
         Rectangle {
             id: upButton
@@ -111,7 +47,7 @@ Rectangle {
             anchors.rightMargin: 20
             anchors.verticalCenter: banner.verticalCenter
             visible: true
-            width: 2 * arrow.width
+            width: 3 * arrow.width
             height:arrow.height
             color: "red"
             MouseArea {
@@ -120,6 +56,16 @@ Rectangle {
                     if(account != "")
                         banner.uploadData();
                 }
+            }
+            Text {
+                id:uploadText
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                height: parent.height
+                text:"upload"
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
             }
         }
 
@@ -181,32 +127,6 @@ Rectangle {
             if (currentIndex == 1)
                 listViewActive = 0;
         }
-       /* function updateIndexModel(){
-            console.log("update get Msg");
-            console.log(clien.text);
-            var records = clien.text.split("|");
-            var index = 0;
-            userIndex.clear();
-            for(; index < records.length; index++){
-                var data = records[index].split(',');
-                if (data.length === 7){
-                    userIndex.append(userIndex.createUserIndex(data));
-                    //console.log(data[0]);
-                    var mydate=new Date(data[0]);
-                    var mydate1=new Date(2016,0,26);
-                    console.log(mydate);
-                    console.log(mydate1);
-                }
-            }
-            if (userIndex.count > 0) {
-                userIndex.ready = true;
-                userIndex.userScore = userIndex.get(0).changed;
-                userIndex.userScoreChanged = userIndex.count > 1 ?
-                            (Math.round((userIndex.userScore - userIndex.get(1).pulse) * 100) / 100) : 0;
-                userIndex.dataReady(); //emit signal
-            }
-        }*/
-
         Clien {
             id:clien
             onTextChanged: root.updateIndexModel()
@@ -214,7 +134,9 @@ Rectangle {
         MySQL{
             id : mySQL
             onRetriveDetailBaseStatusChanged: {updateIndexModel(status)}
-            /*date, pressure heartRate temperature pulse score changed*/
+            onUploadStatusChanged: {
+                console.log(status)
+            }
             function updateIndexModel(status){
                 if(status === true){
                     console.log(getDetailInfo())
@@ -224,11 +146,13 @@ Rectangle {
                     for(var i=0; i<detailInfo.length; i++){
                         userIndex.append(detailInfo[i])
                     }
+
                     if(userIndex.count>0){
                         userIndex.ready = true
-                        userIndex.dataReady()
+
                     }
                     else userIndex.ready = false
+                     userIndex.dataReady()
                 }
             }
         }
@@ -251,8 +175,19 @@ Rectangle {
             id: userIndex
             userId: listView.currentUserId
             userName: listView.currentUserName
-            //onUserIdChanged: root.sendRequest()
-            onUserIdChanged: mySQL.retriveUserDetailInfo(userId)
+            userScore: listView.currentScore
+            userScoreChanged: listView.currentChanged
+            onUserIdChanged: {
+                ready = false
+                if(dataLength === "WEEK")
+                    mySQL.retriveUserDetailInfo(userId, MySQL.WEEK)
+                else if(dataLength === "MONTH")
+                    mySQL.retriveUserDetailInfo(userId, MySQL.MONTH)
+                else if(dataLength === "YEAR")
+                    mySQL.retriveUserDetailInfo(userId, MySQL.YEAR)
+                else
+                    mySQL.retriveUserDetailInfo(userId, MySQL.MAX)
+             }
             onDataReady: {
                 root.positionViewAtIndex(1, ListView.SnapPosition)
                 indexView.update()

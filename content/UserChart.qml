@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-
+import SQL 1.0
 Rectangle {
     id: chart
     width: 320
@@ -48,7 +48,7 @@ Rectangle {
     property var indexModel: null
     property var startDate: new Date()
     property var endDate: new Date()
-    property string activeChart: "year"
+    property string activeChart: "week"
     property var settings
     property int gridSize: 4
     property real gridStep: gridSize ? (width - canvas.tickMargin) / gridSize : canvas.xGridStep
@@ -63,14 +63,14 @@ Rectangle {
         }
         else if (chart.activeChart === "month") {
             chart.startDate = new Date(chart.endDate.getFullYear(),
-                                       chart.endDate.getMonth() - 1,
-                                       chart.endDate.getDate());
+                                       chart.endDate.getMonth(),
+                                       chart.endDate.getDate() - indexModel.count+1);
             gridSize = 0;
         }
         else if (chart.activeChart === "week") {
             chart.startDate = new Date(chart.endDate.getFullYear(),
                                        chart.endDate.getMonth(),
-                                       chart.endDate.getDate() - 7);
+                                       chart.endDate.getDate() - indexModel.count+1);
             gridSize = 0;
         }
         else {
@@ -99,8 +99,11 @@ Rectangle {
             text: "Max"
             buttonEnabled: chart.activeChart === "max"
             onClicked: {
-                chart.activeChart = "max";
-                chart.update();
+                 userIndex.ready=false;
+                userIndex.dataLength="YEAR"
+                 canvas.requestPaint();
+                 chart.activeChart = "max";
+                 mySQL.retriveUserDetailInfo(indexModel.userId, MySQL.MAX)
             }
         }
         Button {
@@ -108,8 +111,11 @@ Rectangle {
             text: "Year"
             buttonEnabled: chart.activeChart === "year"
             onClicked: {
+                userIndex.ready=false;
+                userIndex.dataLength="YEAR"
+                canvas.requestPaint();
                 chart.activeChart = "year";
-                chart.update();
+                mySQL.retriveUserDetailInfo(indexModel.userId, MySQL.YEAR)
             }
         }
         Button {
@@ -117,8 +123,11 @@ Rectangle {
             text: "Month"
             buttonEnabled: chart.activeChart === "month"
             onClicked: {
+                userIndex.ready=false;
+                userIndex.dataLength = "MONTH"
+                canvas.requestPaint();
                 chart.activeChart = "month";
-                chart.update();
+                mySQL.retriveUserDetailInfo(indexModel.userId, MySQL.MONTH)
             }
         }
         Button {
@@ -126,8 +135,10 @@ Rectangle {
             text: "Week"
             buttonEnabled: chart.activeChart === "week"
             onClicked: {
+                 userIndex.ready=false;
+                userIndex.dataLength="WEEK"
                 chart.activeChart = "week";
-                chart.update();
+                mySQL.retriveUserDetailInfo(indexModel.userId, MySQL.WEEK)
             }
         }
     }
@@ -322,10 +333,14 @@ Rectangle {
 
         onPaint: {
             if (!indexModel.ready) {
+                var actx = canvas.getContext("2d");
+                actx.globalCompositeOperation = "source-over";
+                actx.lineWidth = 1;
+
+                drawBackground(actx);
                 return;
             }
             numPoints = indexModel.indexOf(chart.startDate);
-
             if (chart.gridSize == 0)
                 chart.gridSize = numPoints
 
