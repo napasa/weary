@@ -3,9 +3,13 @@ import QtQuick 2.0
 import QtQml.Models 2.1
 import IOs 1.0
 import SQL 1.0
-import "./content"
+import QtQuick.Window 2.0
+import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.1
 
-Rectangle {
+import "./content"
+ApplicationWindow{
+//Rectangle {
     id: mainRect
     width: 1000
     height: 700

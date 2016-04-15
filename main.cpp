@@ -60,31 +60,24 @@ int main(int argc, char* argv[])
     app.setApplicationName(QFileInfo(app.applicationFilePath()).baseName());
     QQmlApplicationEngine engine;
     engine.load(QUrl("qrc:/demos/stocqt/LogWin.qml"));
+    engine.load(QUrl("qrc:/demos/stocqt/wearyMaster.qml"));
     QObject *logOrRegObject = engine.rootObjects().value(0);
+    QObject *mainObject = engine.rootObjects().value(1);
     QQuickWindow *logOrRegView = qobject_cast<QQuickWindow *>(logOrRegObject);
+    QQuickWindow *mainView = qobject_cast<QQuickWindow *>(mainObject);
     logOrRegView->show();
-    MyQuickView mainView;
     if (qgetenv("QT_QUICK_CORE_PROFILE").toInt()) {
-        QSurfaceFormat f = mainView.format();
+        QSurfaceFormat f = mainView->format();
         f.setProfile(QSurfaceFormat::CoreProfile);
         f.setVersion(4, 4);
-        mainView.setFormat(f);
+        mainView->setFormat(f);
     }\
-    mainView.connect(mainView.engine(), SIGNAL(quit()), &app, SLOT(quit()));
     QObject::connect(logOrRegObject, SIGNAL(exited()), logOrRegView, SLOT(close()));
-    QObject::connect(logOrRegObject, SIGNAL(exited()), &mainView, SLOT(close()));
-    QObject::connect(logOrRegObject, SIGNAL(log()), &mainView, SLOT(show()));
+    QObject::connect(logOrRegObject, SIGNAL(exited()), mainView, SLOT(close()));
+    QObject::connect(logOrRegObject, SIGNAL(log()), mainView, SLOT(show()));
     QObject::connect(logOrRegObject, SIGNAL(log()), logOrRegView, SLOT(close()));
-    QObject::connect(logOrRegObject, SIGNAL(createView(QUrl)), &mainView, SLOT(setSource(QUrl)));   
-    QObject::connect(logOrRegObject, SIGNAL(transferAc(QString)), &mainView, SLOT(setAcText(QString)));
-    new QQmlFileSelector(mainView.engine(), &mainView);
-    mainView.setResizeMode(QQuickView::SizeRootObjectToView);\
-    if (QGuiApplication::platformName() == QLatin1String("qnx") ||
-          QGuiApplication::platformName() == QLatin1String("eglfs")) {
-        mainView.showFullScreen();
-    } else {
-        //mainView.show();
-    }\
+    //QObject::connect(logOrRegObject, SIGNAL(createView(QUrl)), mainView, SLOT(setSource(QUrl)));
+    QObject::connect(logOrRegObject, SIGNAL(transferAc(QString)), mainView, SLOT(setAcText(QString)));
 
     return app.exec();
 }
