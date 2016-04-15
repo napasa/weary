@@ -1,50 +1,18 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import IOs 1.0
 import SQL 1.0
-Rectangle {
+import QtQuick.Window 2.0
+import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.1
+ApplicationWindow{
+//Rectangle {
     id: firstwin
-    width: 300
-    height: 320
-    color: "#7f1230"
-    radius: 15
-    scale: 1
-    transformOrigin: Item.BottomLeft
-    rotation: 0
-    clip: true
-    border.width: 10
     signal createView(url url)
     signal exited
     signal log
     signal transferAc(string Ac)
     onCreateView: firstwin.log()
     onLog:transferAc(accountenter.text)
-    MySQL{
-        id:mySQL
-        onRegisterStatusChanged:{registerProcess(status)}
-        onLoginStatusChanged: {logProcess(status)}
-        function logProcess(status){
-            if(status === true){
-                console.log("log successfully")
-                refer.text = "Log Successfully! Enjoy it!"
-                firstwin.createView("qrc:/demos/stocqt/wearyMaster.qml")
-            }
-            else{
-                console.log("log failurely")
-                refer.text = "You entered error account or password,Try Again!"
-            }
-        }
-        function registerProcess(status){
-            if(status === true) refer.text = "Register Successfully! Use it when next log"
-            else  refer.text = "You entered error account or password,Try Again!"
-        }
-    }
-
-    Clien {
-        id: toconnect
-        onTextChanged:status()
-    }
-
-
     function logOrRegister(order) {
                      console.log("MouseArea is clicked");
                      var ac = accountenter.text;
@@ -74,6 +42,66 @@ Rectangle {
                              mySQL.registerAccount(ac, pwd, "nameqml", "g")
                      }
                  }
+    x:0
+    width: 300
+    height: 320
+    flags: Qt.FramelessWindowHint
+    color: "transparent"
+    MouseArea{
+        id:mouse
+       x:0
+       y:0
+       width: 300
+       height: 320
+       property var  pressedX
+       property var  pressedY
+       onPressed: {
+           pressedX = mouseX
+           pressedY = mouseY
+           console.log("firstwin.x:"+ firstwin.x)
+       }
+        onPositionChanged: {
+            firstwin.x += (mouse.x - pressedX)
+            firstwin.y += (mouse.y - pressedY)
+        }
+    }
+
+    Rectangle{
+        opacity: 1
+        width: 300
+        height: 320
+        radius: 15
+        scale: 1
+        transformOrigin: Item.BottomLeft
+        rotation: 0
+        clip: true
+        border.width: 10
+    MySQL{
+        id:mySQL
+        onRegisterStatusChanged:{registerProcess(status)}
+        onLoginStatusChanged: {logProcess(status)}
+        function logProcess(status){
+            if(status === true){
+                console.log("log successfully")
+                refer.text = "Log Successfully! Enjoy it!"
+                firstwin.createView("qrc:/demos/stocqt/wearyMaster.qml")
+            }
+            else{
+                console.log("log failurely")
+                refer.text = "You entered error account or password,Try Again!"
+            }
+        }
+        function registerProcess(status){
+            if(status === true) refer.text = "Register Successfully! Use it when next log"
+            else  refer.text = "You entered error account or password,Try Again!"
+        }
+    }
+
+    Clien {
+        id: toconnect
+        onTextChanged:status()
+    }
+
     TextInput {
         id: accountenter
         x: 160
@@ -142,22 +170,23 @@ Rectangle {
         x: 82
         y: 139
         width: 236
-        height: 39
+        height: 31
         color: "#14aaff"
         text: "pwd01"
+        font.family: "DejaVu Sans Mono"
         //echoMode: TextInput.Password
         z: 1
         horizontalAlignment: Text.AlignHCenter
         anchors.horizontalCenterOffset: -1
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: 34
+        font.pixelSize: 26
 
         Rectangle {
             id: rectangle2
             x: 0
             y: 0
             width: 236
-            height: 39
+            height: 31
             color: "#14aaff"
             radius: 2
             opacity: 0.3
@@ -185,10 +214,6 @@ Rectangle {
             width: 106
             height: 36
             z: 1
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.top: parent.top
             acceptedButtons: Qt.LeftButton
             enabled: accountenter.text.length > 4 && pwdenter.text.length > 4
                      && accountenter.text.length < 8 && pwdenter.text.length < 8
@@ -236,14 +261,15 @@ Rectangle {
             width: 106
             height: 36
             z: 1
+            acceptedButtons: Qt.LeftButton
             enabled: accountenter.text.length > 4 && pwdenter.text.length > 4
                      && accountenter.text.length < 8 && pwdenter.text.length < 8
             onEnabledChanged: {
                 if(enabled === false){
-                    rectangle4.color = "#040404"
+                    rectangle3.color = "#040404"
                 }
                 else if(enabled === true){
-                    rectangle4.color = "#14aaff"
+                    rectangle.color = "#14aaff"
                 }
             }
             onClicked:firstwin.logOrRegister(1);
@@ -255,8 +281,8 @@ Rectangle {
             height: 36
             radius: 2
             opacity: 0.3
-            border.width: 2
             border.color: "#898989"
+            border.width: 3
         }
     }
 
@@ -302,5 +328,6 @@ Rectangle {
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
     }
+ }
 }
 

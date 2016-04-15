@@ -11,11 +11,9 @@ Rectangle {
     height: 700
 
     property int listViewActive: 0
-    property string uploadPath: "file:///home/yhs/serv/user01"
     property string account:""
     function getmsg(msg){
         account = msg;
-        console.log("get login account:"+account);
     }
 
     Rectangle {

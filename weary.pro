@@ -23,7 +23,8 @@ HEADERS += \
 
 DISTFILES += \
     content/A.qml \
-    content/B.qml
+    content/B.qml \
+    content/FrameLess.qml
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../db/mysql-connector/lib/release/ -lmysqlcppconn
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../db/mysql-connector/lib/debug/ -lmysqlcppconn
