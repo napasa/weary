@@ -303,7 +303,7 @@ bool InteractSQL::uploadTodayInfo(const QString &userID, const QString &date, co
         res = stmt->executeQuery(sqlStmt.toStdString());
         if(res->next()){
             emit uploadStatusChanged(false);
-            return false;
+            return true;
         }
         prep_uploadInfo_stmt->clearParameters();
         prep_uploadInfo_stmt->setString(1, userID.toStdString());

@@ -37,7 +37,9 @@ TableView {
         if(focus==true)
             fileIO.readData()
     }
-
+    MySQL{
+        id:sql
+    }
     ListModel {
         id: libraryModel
         property bool timeToUpload: false
@@ -45,16 +47,17 @@ TableView {
             if(timeToUpload === true){
                 var i=0;
                 var object
+                var status
                 while(i !=libraryModel.count){
                     object = get(i)
+                    status =sql.uploadTodayInfo(mainRect.account, object.date, object.heartRate,
+                                        object.temperature, object.pressure, object.pulse)
+                    if(status === false)
+                        break
+                    i++
                 }
-
-//                timeToUpload = false
+                timeToUpload = false
             }
-        }
-
-        MySQL{
-            id:sql
         }
     }
     TableViewColumn{
