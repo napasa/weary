@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
     engine.load(QUrl("qrc:/demos/stocqt/wearyMaster.qml"));
     QObject *logOrRegObject = engine.rootObjects().value(0);
     QObject *mainObject = engine.rootObjects().value(1);
+    QObject *listViewObject = mainObject->findChild<QObject*>("userListView");
     QQuickWindow *logOrRegView = qobject_cast<QQuickWindow *>(logOrRegObject);
     QQuickWindow *mainView = qobject_cast<QQuickWindow *>(mainObject);
     logOrRegView->show();
@@ -72,12 +73,13 @@ int main(int argc, char* argv[])
         f.setVersion(4, 4);
         mainView->setFormat(f);
     }\
+
     QObject::connect(logOrRegObject, SIGNAL(exited()), logOrRegView, SLOT(close()));
     QObject::connect(logOrRegObject, SIGNAL(exited()), mainView, SLOT(close()));
     QObject::connect(logOrRegObject, SIGNAL(log()), mainView, SLOT(show()));
     QObject::connect(logOrRegObject, SIGNAL(log()), logOrRegView, SLOT(close()));
-    //QObject::connect(logOrRegObject, SIGNAL(createView(QUrl)), mainView, SLOT(setSource(QUrl)));
-    QObject::connect(logOrRegObject, SIGNAL(transferAc(QString)), mainView, SLOT(setAcText(QString)));
-
+    QObject::connect(logOrRegObject, SIGNAL(log()), listViewObject, SLOT(retriveBaseInfo()));
+    QObject::connect(logOrRegObject, SIGNAL(transferAc(QVariant)), mainView, SLOT(receiveAc(QVariant)));
+    QObject::connect(mainObject, SIGNAL(exitProc()), &app, SLOT(quit()));
     return app.exec();
 }

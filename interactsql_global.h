@@ -22,7 +22,9 @@
 #define PULSESTANDARD 100
 #define AVERSCORE(reality, times, aver) (reality+times*aver)/(aver+1)
 #define ITEMSCORE(reality, standard) (1-abs(reality/standard-1))*100
-const std::string BaseColumnId[5] ={"id", "name", "sex", "score", "changed"};
+//QString BasePath("/home/yhs/WearyMaster/");
+#define BasePath "/home/yhs/WearyMaster/"
+const std::string BaseColumnId[8] ={"id", "name", "sex", "uploadTimes", "birthDate", "region","changed", "score"};
 const std::string DetailColumnId[7] = { "date", "heartRate", "temperature", "pressure", "pulse", "score", "changed"};
 
 #endif // INTERACTSQL_GLOBAL_H

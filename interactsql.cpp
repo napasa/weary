@@ -1,6 +1,6 @@
 #include "interactsql.h"
 #include <math.h>
-
+#include <fstream>
 
 InteractSQL::InteractSQL(QObject *parent, const QString &host, const QString &database, const QString &user, const QString &password)
     :QObject(parent)
@@ -11,20 +11,7 @@ InteractSQL::InteractSQL(QObject *parent, const QString &host, const QString &da
         con->setAutoCommit(0);
         con->setSchema(database.toStdString());
         stmt = con->createStatement();
-
-        QString str_prep_stmt_0="INSERT INTO baseInfo(id, pwd, name, sex, score, changed, uploadTimes) VALUE(?,?,?,?,?,?,?)" ;
-        QString str_prep_stmt_1 = QString("SELECT DISTINCT date, heartRate, temperature, pressure, pulse, score, changed FROM ").append(DETAITABLE)\
-                .append(" WHERE id= ? AND date >DATE_SUB(?, INTERVAL ? DAY) ORDER BY date DESC");
-        QString str_prep_stmt_2 = QString("INSERT INTO detailInfo(id, date, heartRate, temperature, pressure, pulse) VALUE(?, ?, ?, ?, ?, ?)");
-        QString str_prep_stmt_3 = QString("UPDATE ").append(BASEINFOTABLE).append(" SET uploadTimes=?, changed=?, score=? WHERE id=?");
-        QString str_prep_stmt_4 = QString("SELECT AVG(heartRate), AVG(temperature), AVG(pressure), AVG(pulse) From  ").append(DETAITABLE)\
-                .append(" WHERE id=? AND date BETWEEN ? AND ? GROUP BY id");
-
-        prep_register_stmt = con->prepareStatement(str_prep_stmt_0.toStdString());
-        prep_retriveIndexInfo_stmt = con->prepareStatement(str_prep_stmt_1.toStdString());
-        prep_uploadInfo_stmt = con->prepareStatement(str_prep_stmt_2.toStdString());
-        prep_alterUploadTimes_stmt = con->prepareStatement(str_prep_stmt_3.toStdString());
-        prep_yearDatailInfo_stmt = con->prepareStatement(str_prep_stmt_4.toStdString());
+        setPrepStmt();
     }catch (SQLException &e) {
             cout << "ERROR: SQLException in " << __FILE__;
             cout << " (" << __func__<< ") on line " << __LINE__ << endl;
@@ -37,6 +24,26 @@ InteractSQL::InteractSQL(QObject *parent, const QString &host, const QString &da
                 cout << "Perhaps MYSQL < 4.1?" << endl;
             }
     }
+}
+
+void InteractSQL::setPrepStmt(){
+    QString str_prep_stmt_0="INSERT INTO baseInfo(id, pwd, name, sex, score, changed, uploadTimes) VALUE(?,?,?,?,?,?,?)" ;
+    QString str_prep_stmt_1 = QString("SELECT DISTINCT date, heartRate, temperature, pressure, pulse, score, changed FROM ").append(DETAITABLE)\
+            .append(" WHERE id= ? AND date >DATE_SUB(?, INTERVAL ? DAY) ORDER BY date DESC");
+    QString str_prep_stmt_2 = QString("INSERT INTO detailInfo(id, date, heartRate, temperature, pressure, pulse) VALUE(?, ?, ?, ?, ?, ?)");
+    QString str_prep_stmt_3 = QString("UPDATE ").append(BASEINFOTABLE).append(" SET uploadTimes=?, changed=?, score=? WHERE id=?");
+    QString str_prep_stmt_4 = QString("SELECT AVG(heartRate), AVG(temperature), AVG(pressure), AVG(pulse) From  ").append(DETAITABLE)\
+            .append(" WHERE id=? AND date BETWEEN ? AND ? GROUP BY id");
+    QString str_prep_stmt_5 = QString("UPDATE baseInfo Set name=?, birthDate=?, sex=?, region=?, picture=? WHERE id = ?");
+    QString str_prep_stmt_6 = QString("SELECT picture FROM baseInfo WHERE id='user01'");
+    prep_updateBaseInfo_stmt = con->prepareStatement(str_prep_stmt_5.toStdString());
+    prep_getPic_stmt = con->prepareStatement(str_prep_stmt_6.toStdString());
+
+    prep_register_stmt = con->prepareStatement(str_prep_stmt_0.toStdString());
+    prep_retriveIndexInfo_stmt = con->prepareStatement(str_prep_stmt_1.toStdString());
+    prep_uploadInfo_stmt = con->prepareStatement(str_prep_stmt_2.toStdString());
+    prep_alterUploadTimes_stmt = con->prepareStatement(str_prep_stmt_3.toStdString());
+    prep_yearDatailInfo_stmt = con->prepareStatement(str_prep_stmt_4.toStdString());
 }
 
 bool InteractSQL::registerAccount(const QString &userID, const QString &userPwd, const QString &userName, const QString &userGender)
@@ -122,15 +129,15 @@ try{
     QVector<QString> indexPair;
     QVector<QString> infoPair;
     sqlStmt.clear();
-    sqlStmt.append( "SELECT id,name,sex,score,changed FROM ").append(BASEINFOTABLE)\
+    sqlStmt.append( "SELECT id,name,sex, uploadTimes, birthDate, region, changed ,score FROM ").append(BASEINFOTABLE)\
             .append(" ORDER BY NAME;");
     res = stmt->executeQuery(sqlStmt.toStdString());
     infoPair.clear();
     while (res->next()) {
         indexPair.clear();
-        while (i!=5) {
-            if( i == 3)     indexPair.push_back(formatPair(BaseColumnId[3], res->getDouble(BaseColumnId[3])));
-            else if(i == 4) indexPair.push_back(formatPair(BaseColumnId[4], res->getInt(BaseColumnId[4])));
+        while (i!=8) {
+            if( i == 7 || i==6)     indexPair.push_back(formatPair(BaseColumnId[i], res->getDouble(BaseColumnId[i])));
+            else if(i == 3) indexPair.push_back(formatPair(BaseColumnId[i], res->getInt(BaseColumnId[i])));
             else    indexPair.push_back(formatPair(BaseColumnId[i], res->getString(BaseColumnId[i])));
             i++;
         }
@@ -340,5 +347,81 @@ bool InteractSQL::uploadTodayInfo(const QString &userID, const QString &date, co
     }
     emit uploadStatusChanged(false);
     return false;
+}
+
+bool InteractSQL::updateBaseInfo(const QString &name, const QString &birthDate, const QString &sex, const QString &region,
+                            const QString &filePath, const QString &userID)
+{
+    try{
+        std::ifstream ifs;
+
+        ifs.open(filePath.toStdString(), std::ifstream::binary);
+        if(ifs.is_open()){
+            prep_updateBaseInfo_stmt->setString(1, name.toStdString());
+            prep_updateBaseInfo_stmt->setString(2, birthDate.toStdString());
+            prep_updateBaseInfo_stmt->setString(3, sex.toStdString());
+            prep_updateBaseInfo_stmt->setString(4, region.toStdString());
+            prep_updateBaseInfo_stmt->setBlob(5, &ifs);
+            prep_updateBaseInfo_stmt->setString(6, userID.toStdString());
+            affectedColumns = prep_updateBaseInfo_stmt->executeUpdate();
+            con->commit();
+            if(affectedColumns!=0){
+                ifs.close();
+                return true;
+            }
+        }
+        ifs.close();
+        return false;
+    }catch (SQLException &e) {
+        cout << "ERROR: SQLException in " << __FILE__;
+        cout << " (" << __func__<< ") on line " << __LINE__ << endl;
+        cout << "ERROR: " << e.what();
+        cout << " (MySQL error code: " << e.getErrorCode();
+        cout << ", SQLState: " << e.getSQLState() << ")" << endl;
+
+        if (e.getErrorCode() == 1047) {
+            cout << "\nYour server does not seem to support Prepared Statements at all. ";
+            cout << "Perhaps MYSQL < 4.1?" << endl;
+        }
+    }
+    return false;
+}
+
+const QString InteractSQL::retriveUserPic(const QString &userID)
+{
+    try{
+        sqlStmt.clear();
+        sqlStmt.append("SELECT picture FROM ").append(BASEINFOTABLE).append(" WHERE id='").append(userID).append("';");
+        res = stmt->executeQuery(sqlStmt.toStdString());
+        QString savePath = QString(BasePath).append(userID).append(".jpg");
+        while (res->next()) {
+            std::filebuf fb;
+            fb.open(savePath.toStdString(), std::ios::out);
+            std::istream * is= res->getBlob(QString("picture").toStdString());
+            std:ostream os(&fb);
+            is->seekg (0, is->end);
+               int length = is->tellg();
+               is->seekg (0, is->beg);
+           char * buffer = new char [length];
+           is->read (buffer,length);
+           os.write(buffer, length);
+           delete [] buffer;
+           fb.close();
+
+           return savePath;
+        }
+    }catch (SQLException &e) {
+        cout << "ERROR: SQLException in " << __FILE__;
+        cout << " (" << __func__<< ") on line " << __LINE__ << endl;
+        cout << "ERROR: " << e.what();
+        cout << " (MySQL error code: " << e.getErrorCode();
+        cout << ", SQLState: " << e.getSQLState() << ")" << endl;
+
+        if (e.getErrorCode() == 1047) {
+            cout << "\nYour server does not seem to support Prepared Statements at all. ";
+            cout << "Perhaps MYSQL < 4.1?" << endl;
+        }
+    }
+    return "";
 }
 

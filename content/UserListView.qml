@@ -49,9 +49,16 @@ Rectangle {
     anchors.top: parent.top
     anchors.bottom: parent.bottom
     color: "white"
+    function retriveBaseInfo() {
+        mySQL.retriveAllUsersBaseInfo();
+    }
 
     property string currentUserId: ""
     property string currentUserName: ""
+    property string currentSex:""
+    property int  currentUploadTimes
+    property string currentBirthDate
+    property string currentRegion : ""
     property double currentScore
     property  double  currentChanged
     FileIO{
@@ -79,13 +86,6 @@ Rectangle {
             }
         }
     }
-
-    function updateBaseUserData(){
-        baseData.connectHost();
-        baseData.construction = "030000";
-        baseData.writeMessage();
-    }
-    Component.onCompleted: mySQL.retriveAllUsersBaseInfo();
     ListView {
         id: view
         anchors.fill: parent
@@ -103,17 +103,16 @@ Rectangle {
                 view.model.append(data[i]);
             }
         }
-        function sendRequest(){
-            clien.construction = "1"+view.model.count;
-            clien.writeMessage();
-        }
-
         onCurrentIndexChanged: {
             mainRect.listViewActive = 0;
             root.currentUserId = model.get(currentIndex).id;
-            root.currentUserName = model.get(currentIndex).sex;
-            root.currentScore = model.get(currentIndex).score;
+            root.currentUserName = model.get(currentIndex).name;
+            root.currentSex = model.get(currentIndex).sex;
+            root.currentUploadTimes = model.get(currentIndex).uploadTimes;
+            root.currentBirthDate = model.get(currentIndex).birthDate;
+            root.currentRegion = model.get(currentIndex).region;
             root.currentChanged = model.get(currentIndex).changed;
+            root.currentScore = model.get(currentIndex).score;
         }
 
         delegate: Rectangle {

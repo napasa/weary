@@ -21,9 +21,13 @@ public:
     Q_INVOKABLE bool loginAccount(const QString &userID, const QString &userPassword);
     Q_INVOKABLE bool retriveAllUsersBaseInfo();
     Q_INVOKABLE bool retriveUserDetailInfo(const QString &userID, DataLength dataLength);
+    Q_INVOKABLE const QString retriveUserPic(const QString &userID);
     Q_INVOKABLE bool uploadTodayInfo(const QString &userID, const QString &date, const int heartRate, const int temperature, const int pressure, const int pulse);
     Q_INVOKABLE const QString getDetailInfo()const{return detailInfo;}
     Q_INVOKABLE const QString getBaseInfo()const{return baseInfo;}
+    Q_INVOKABLE bool updateBaseInfo(const QString &name, const QString &birthDate,
+                                    const QString &sex, const QString &region,
+                                    const QString &filePath, const QString &userID);
     ~InteractSQL(){}
 signals:
     void registerStatusChanged(bool status);
@@ -33,7 +37,7 @@ signals:
     void uploadStatusChanged(bool status);
 private:
     void connect(const QString &host, const QString &database, const QString, const QString &password);
-
+    void setPrepStmt();
     QString formatPair(const std::string &key, const std::string &value);
     QString formatPair(const string &key, const int &value);
     QString formatPair(const string &key, const long double &value);
@@ -46,6 +50,8 @@ private:
     PreparedStatement *prep_uploadInfo_stmt;
     PreparedStatement *prep_alterUploadTimes_stmt;
     PreparedStatement *prep_yearDatailInfo_stmt;
+    PreparedStatement *prep_updateBaseInfo_stmt;
+    PreparedStatement *prep_getPic_stmt;
     ResultSet *res;
     QString detailInfo;
     QString baseInfo;
