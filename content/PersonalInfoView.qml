@@ -1,7 +1,9 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Dialogs 1.1
 import SQL 1.0
+import IOs 1.0
 Rectangle {
     id:root
     width: 1000 - 20
@@ -16,12 +18,27 @@ Rectangle {
     property bool mainPageHasFocus:false
     onFocusChanged: {
         if(focus == true){
-           image.source = "file://" + sql.retriveUserPic(mainRect.account)
+            var savePath = "file:///home/yhs/WearyMaster/" + userID +".jpg"
+            if(io.isFileExist(savePath)===true){
+                image.source =savePath
+                root.mainPageHasFocus = true
+                return
+            }
+            var path = sql.retriveUserPic(root.userID);
+            if(path === "error"){
+                image.source = "file:///home/yhs/WearyMaster/default.jpg"
+                root.mainPageHasFocus = true
+                return;
+            }
+           image.source = "file://" + path
             root.mainPageHasFocus = true
         }
         else{
             mainPageHasFocus =false
         }
+    }
+    FileIO{
+        id:io
     }
 
     Rectangle{
@@ -130,17 +147,45 @@ Rectangle {
             inputText: root.region
         }
 
-        SiblingEditable{
+        Text{
             id:siblingPicPath
             anchors.top: siblingRegion.bottom
-            labelText: "PicPath:"
-            inputText: "/home/yhs/Pictures/bar_2_3.jpg"
+            anchors.left: parent.left
+            anchors.margins: 10
+            anchors.leftMargin: 20
+            elide : Text.ElideRight
+            font.pixelSize: 20
+            width: 500
+            height: 25
+            property string labelText: "PicPath:  "
+            property string inputText: "/home/yhs/Pictures/bar_2_3.jpg"
+            text:labelText+inputText
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    fileDialog.openDialog(siblingPicPath.labelText)
+                }
+            }
         }
-        SiblingEditable{
+        Text {
             id:siblingDataPath
             anchors.top:siblingPicPath.bottom
-            labelText: "DataPath:"
-            inputText: "/home/yhs/WearyMaster.dat"
+            anchors.left: parent.left
+            anchors.margins: 10
+            anchors.leftMargin: 20
+            elide : Text.ElideRight
+            font.pixelSize: 20
+            width: 500
+            height: 25
+            property string labelText: "DataPath:   "
+            property string inputText: "/home/yhs/WearyMaster.dat"
+            text:labelText +inputText
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    fileDialog.openDialog(siblingDataPath.labelText)
+                }
+            }
         }
         SelectBtn{
             id:confirm
@@ -179,6 +224,22 @@ Rectangle {
             anchors.top: tableView.bottom
             anchors.topMargin: 20
             onBtnClicked: {tableView.timeToUpload=true}
+        }
+    }
+    FileDialog{
+        id:fileDialog
+        property var obj
+        onAccepted: {
+             console.log("Accepted: " + fileUrls)
+            if(obj === siblingDataPath.labelText)
+                siblingDataPath.inputText = fileUrl
+            else{
+                siblingPicPath.inputText = fileUrl
+            }
+        }
+        function openDialog(object){
+            obj = object
+            open()
         }
     }
 }

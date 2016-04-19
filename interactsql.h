@@ -25,9 +25,9 @@ public:
     Q_INVOKABLE bool uploadTodayInfo(const QString &userID, const QString &date, const int heartRate, const int temperature, const int pressure, const int pulse);
     Q_INVOKABLE const QString getDetailInfo()const{return detailInfo;}
     Q_INVOKABLE const QString getBaseInfo()const{return baseInfo;}
-    Q_INVOKABLE bool updateBaseInfo(const QString &name, const QString &birthDate,
-                                    const QString &sex, const QString &region,
-                                    const QString &filePath, const QString &userID);
+    Q_INVOKABLE bool updateBaseInfo(const QString name, const QString birthDate,
+                                    const QString sex, const QString region,
+                                    QString filePath, const QString userID);
     ~InteractSQL(){}
 signals:
     void registerStatusChanged(bool status);

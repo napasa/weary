@@ -25,7 +25,8 @@ DISTFILES += \
     content/FrameLess.qml \
     content/SelectBtn.qml \
     content/SiblingEditable.qml \
-    content/SiblingLable.qml
+    content/SiblingLable.qml \
+    content/SelectPathDialog.qml
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../db/mysql-connector/lib/release/ -lmysqlcppconn
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../db/mysql-connector/lib/debug/ -lmysqlcppconn

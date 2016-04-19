@@ -11,8 +11,13 @@ TableView {
     property bool mainPageHasFocus:false
     property alias timeToUpload: libraryModel.timeToUpload
     onMainPageHasFocusChanged: {
-        if(mainPageHasFocus==true){
+        if(mainPageHasFocus==true && mainRect.account===root.userID){
+           console.log("logAcc" + mainRect.account + "userID:" + root.userID)
             fileIO.readData()
+        }
+        else{
+            if(libraryModel.count != 0)
+                libraryModel.clear()
         }
     }
 
@@ -20,6 +25,8 @@ TableView {
         id:fileIO
         function readData()
         {
+            if(libraryModel.count != 0)
+                return
             setSource("file:///home/yhs/WearyMaster/healthyInfo.json")
             read()
         }
@@ -27,6 +34,7 @@ TableView {
             var jsonText = JSON.parse(fileIO.text)
             console.log("uploadData:"+jsonText.length)
             var i=0;
+            libraryModel.clear()
             while(i<jsonText.length){
                 libraryModel.append(jsonText[i])
                 i++

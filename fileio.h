@@ -15,6 +15,11 @@ public:
 
     Q_INVOKABLE void read();
     Q_INVOKABLE void write();
+    Q_INVOKABLE bool isFileExist(QUrl url){
+        if(url.isEmpty())
+            return false;
+        QFile file(url.toLocalFile());
+        return file.exists();}
     QUrl source() const;
     QString text() const;
 public slots:

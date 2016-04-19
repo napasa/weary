@@ -14,7 +14,6 @@ ApplicationWindow{
     height: 700
     flags: Qt.FramelessWindowHint
     color: "transparent"
-
     property int listViewActive: 0
     property string account:""
     signal exitProc
@@ -60,16 +59,8 @@ ApplicationWindow{
                     console.log(upload.text);
                 }
             }
-            function uploadData(){
-                io.setSource("file:///home/yhs/Desktop/pdf/healthyInfo")
-                io.read()
-                console.log(io.text)
-                var newData = JSON.parse(io.text)
-                mySQL.uploadTodayInfo(account, newData[0]["date"], newData[0]["heartRate"],
-                                      newData[0]["temperature"], newData[0]["pressure"], newData[0]["pulse"])
-            }
             SelectBtn{
-                id:exitProc
+                id:exit
                 onBtnClicked:mainRect.exitProc()
                 text:"EXIT"
                 color:"red"
@@ -77,19 +68,14 @@ ApplicationWindow{
                 anchors.top: banner.top
                 anchors.margins: 20
             }
-
-            Image {
-                id: arrow
-                source: "./content/images/icon-left-arrow.png"
-                anchors.left: banner.left
-                anchors.leftMargin: 20
-                anchors.verticalCenter: banner.verticalCenter
-                visible: root.currentIndex == 1 ? true : false
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: listViewActive = 1;
-                }
+            SelectBtn{
+                id:minimize
+                onBtnClicked: mainRect.showMinimized()
+                text:"MINIMIZE"
+                color:"red"
+                anchors.right: exit.left
+                anchors.top: banner.top
+                anchors.margins: 20
             }
 
             Item {
@@ -137,7 +123,7 @@ ApplicationWindow{
             focus: false
             orientation: ListView.Horizontal
             boundsBehavior: Flickable.StopAtBounds
-            currentIndex: listViewActive == 0 ? 1 : 0
+         //   currentIndex: listViewActive == 0 ? 1 : 0
             signal currenIndexInTwo
             onCurrentIndexChanged: {
                 if (currentIndex == 1 || currentIndex == 2)
@@ -201,7 +187,7 @@ ApplicationWindow{
                     id: listView
                     width: root.width
                     height: root.height
-                    visible: listViewActive == 1 ? 1 : 0
+                    visible: listViewActive == 1
 
                 }
 
@@ -226,6 +212,11 @@ ApplicationWindow{
                     userID: listView.currentUserId
                     score:listView.currentScore
                     visible: listViewActive==0 && root.currentIndex == 2
+                    Connections{
+                        id:test
+                        target: root
+                        onCurrentIndexChanged:{console.log("I receive a signal!")}
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@ import QtQuick 2.0
 
 Text {
     id: button
-    width: 106
+    width: 120
     height: 36
     color: "#14aaff"
     text: qsTr("register")
