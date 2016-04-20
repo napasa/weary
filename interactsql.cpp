@@ -395,9 +395,7 @@ const QString InteractSQL::retriveUserPic(const QString &userID)
         QString savePath = QString(BasePath).append(userID).append(".jpg");
         while (res->next()) {
             std::filebuf fb;
-            // fb.open(savePath.toStdString(), std::ios::out);
             std::istream * is= res->getBlob(QString("picture").toStdString());
-            // std::ostream os(&fb);
             is->seekg (0, is->end);
             int length = is->tellg();
             if(length == 0){
@@ -413,7 +411,7 @@ const QString InteractSQL::retriveUserPic(const QString &userID)
             delete [] buffer;
             fb.close();
 
-            return savePath;
+            return QDir::currentPath() + "/UserPicture/" +userID + ".jpg";
         }
     }catch (SQLException &e) {
         cout << "ERROR: SQLException in " << __FILE__;
@@ -429,4 +427,5 @@ const QString InteractSQL::retriveUserPic(const QString &userID)
     }
     return "";
 }
+
 

@@ -46,17 +46,19 @@
 #include <QQuickView> //Not using QQmlApplicationEngine because many examples don't have a Window{}
 #include <QObject>
 #include "fileio.h"
-#include "clien.h"
-#include "myquickview.h"
 #include "interactsql.h"
 int main(int argc, char* argv[])
 {
     QGuiApplication app(argc,argv);
+    QDir currentDir;
+    if(!currentDir.exists("UserPicture")){
+        if(!currentDir.mkdir("UserPicture")){
+            qDebug() << "Do not have permisstion to create directory";
+            return false;
+        }
+    }
     qmlRegisterType<FileIO>("IOs", 1, 0, "FileIO");
-    qmlRegisterType<Clien>("IOs", 1, 0, "Clien");
     qmlRegisterType<InteractSQL>("SQL", 1,0, "MySQL");
-    app.setOrganizationName("QtProject");
-    app.setOrganizationDomain("qt-project.org");
     app.setApplicationName(QFileInfo(app.applicationFilePath()).baseName());
     QQmlApplicationEngine engine;
     engine.load(QUrl("qrc:/demos/stocqt/LogWin.qml"));
@@ -81,5 +83,6 @@ int main(int argc, char* argv[])
     QObject::connect(logOrRegObject, SIGNAL(log()), listViewObject, SLOT(retriveBaseInfo()));
     QObject::connect(logOrRegObject, SIGNAL(transferAc(QVariant)), mainView, SLOT(receiveAc(QVariant)));
     QObject::connect(mainObject, SIGNAL(exitProc()), &app, SLOT(quit()));
+
     return app.exec();
 }

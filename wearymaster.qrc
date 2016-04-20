@@ -19,5 +19,6 @@
         <file>content/SiblingEditable.qml</file>
         <file>content/SiblingLable.qml</file>
         <file>content/UploadTableView.qml</file>
+        <file>content/HelpWindow.qml</file>
     </qresource>
 </RCC>

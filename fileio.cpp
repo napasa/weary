@@ -14,9 +14,9 @@ void FileIO::read()
     if(m_source.isEmpty()) {
         return;
     }
-    QFile file(m_source.toLocalFile());
+    QFile file(m_source);
     if(!file.exists()) {
-        qWarning() << "Does not exits: " << m_source.toLocalFile();
+        qWarning() << "Does not exits: " << m_source;
         return;
     }
     if(file.open(QIODevice::ReadOnly)) {
@@ -31,14 +31,14 @@ void FileIO::write()
     if(m_source.isEmpty()) {
         return;
     }
-    QFile file(m_source.toLocalFile());
+    QFile file(m_source);
     if(file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         stream << m_text;
     }
 }
 
-QUrl FileIO::source() const
+QString FileIO::source() const
 {
     return m_source;
 }
@@ -48,7 +48,7 @@ QString FileIO::text() const
     return m_text;
 }
 
-void FileIO::setSource(QUrl source)
+void FileIO::setSource(QString source)
 {
     if (m_source == source)
         return;

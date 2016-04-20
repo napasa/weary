@@ -23,7 +23,6 @@ Text {
             }
             else if(enabled === true){
                 rectangle3.color = "#14aaff"
-                console.log("change")
             }
         }
         onClicked: {

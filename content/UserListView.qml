@@ -64,10 +64,6 @@ Rectangle {
     FileIO{
         id: io
     }
-    Clien{
-        id: baseData
-        onTextChanged:view.setBaseData()
-    }
     MySQL{
         id:mySQL
         onRetriveBaseInfoStatusChanged: {baseInfoProcess(status)}
@@ -98,8 +94,12 @@ Rectangle {
         model: UserListModel{}
         function setBaseData(jsonText) {
             var data = JSON.parse(jsonText);
-            console.log(jsonText);
+            var score
+            var changed
             for(var i=0; i<data.length; i++){
+                data[i]["score"] =data[i]["score"].toFixed(2)
+                data[i]["changed"] = data[i]["changed"].toFixed(2)
+
                 view.model.append(data[i]);
             }
         }
@@ -212,7 +212,7 @@ Rectangle {
                 font.bold: false
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
-                text:changed/score
+                text:(changed/score).toFixed(2)
                 onTextChanged: {
                     if (parseFloat(text) >= 0.0)
                         color = "#328930";

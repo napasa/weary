@@ -4,6 +4,7 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.1
 import SQL 1.0
 import IOs 1.0
+import Qt.labs.settings 1.0
 Rectangle {
     id:root
     width: 1000 - 20
@@ -18,15 +19,15 @@ Rectangle {
     property bool mainPageHasFocus:false
     onFocusChanged: {
         if(focus == true){
-            var savePath = "file:///home/yhs/WearyMaster/" + userID +".jpg"
-            if(io.isFileExist(savePath)===true){
-                image.source =savePath
+            if(io.isFileExist(userID)===true){
+                image.source ="file://" + io.currentPath() + "/UserPicture/"+userID+".jpg"
                 root.mainPageHasFocus = true
                 return
             }
             var path = sql.retriveUserPic(root.userID);
+         //   console.log(path)
             if(path === "error"){
-                image.source = "file:///home/yhs/WearyMaster/default.jpg"
+                image.source ="file://" + io.currentPath() + "/UserPicture/default.jpg"
                 root.mainPageHasFocus = true
                 return;
             }
@@ -158,8 +159,13 @@ Rectangle {
             width: 500
             height: 25
             property string labelText: "PicPath:  "
-            property string inputText: "/home/yhs/Pictures/bar_2_3.jpg"
-            text:labelText+inputText
+            property string inputText: picSettings.picPath
+            text:labelText+"     "+inputText
+            Component.onDestruction: picSettings.picPath = siblingPicPath.inputText
+            Settings{
+                id:picSettings
+                property string picPath: "./UserPicture/default.jpg"
+            }
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
@@ -178,8 +184,14 @@ Rectangle {
             width: 500
             height: 25
             property string labelText: "DataPath:   "
-            property string inputText: "/home/yhs/WearyMaster.dat"
-            text:labelText +inputText
+            property string inputText: dataSettings.dataPath
+            text:labelText +" "+inputText
+            Component.onDestruction: dataSettings.dataPath = siblingDataPath.inputText
+            Settings{
+                id:dataSettings
+                property string dataPath:"./Data/indexData.dat"
+            }
+
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
@@ -226,11 +238,24 @@ Rectangle {
             onBtnClicked: {tableView.timeToUpload=true}
         }
     }
+    HelpWindow{
+        id:helpWin
+        Component.onCompleted: {
+            io.setSource("./Data/help.html")
+            io.read()
+        }
+        Connections{
+            target: io
+            onTextChanged:{
+                helpWin.helpText = io.text
+            }
+        }
+    }
+
     FileDialog{
         id:fileDialog
         property var obj
         onAccepted: {
-             console.log("Accepted: " + fileUrls)
             if(obj === siblingDataPath.labelText)
                 siblingDataPath.inputText = fileUrl
             else{

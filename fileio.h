@@ -7,7 +7,7 @@ class FileIO : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(FileIO)
-    Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
 public:
     FileIO(QObject *parent = 0);
@@ -15,21 +15,23 @@ public:
 
     Q_INVOKABLE void read();
     Q_INVOKABLE void write();
-    Q_INVOKABLE bool isFileExist(QUrl url){
-        if(url.isEmpty())
-            return false;
-        QFile file(url.toLocalFile());
-        return file.exists();}
-    QUrl source() const;
+    Q_INVOKABLE bool isFileExist(QString picName){
+        return QFile::exists(QString("./UserPicture/")+picName+".jpg");}
+    Q_INVOKABLE QString currentPath(){
+        return QDir::currentPath();
+    }
+
+    QString source() const;
     QString text() const;
 public slots:
-    void setSource(QUrl source);
+    void setSource(QString source);
     void setText(QString text);
 signals:
-    void sourceChanged(QUrl arg);
+    void sourceChanged(QString arg);
     void textChanged(QString arg);
 private:
-    QUrl m_source;
+    //QUrl m_source;
+    QString m_source;
     QString m_text;
 };
 

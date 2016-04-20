@@ -53,12 +53,6 @@ ApplicationWindow{
             FileIO{
                 id: io
             }
-            Clien{
-                id:upload
-                onTextChanged: {
-                    console.log(upload.text);
-                }
-            }
             SelectBtn{
                 id:exit
                 onBtnClicked:mainRect.exitProc()
@@ -123,17 +117,12 @@ ApplicationWindow{
             focus: false
             orientation: ListView.Horizontal
             boundsBehavior: Flickable.StopAtBounds
-         //   currentIndex: listViewActive == 0 ? 1 : 0
             signal currenIndexInTwo
             onCurrentIndexChanged: {
                 if (currentIndex == 1 || currentIndex == 2)
                     listViewActive = 0;
                 else if(currentIndex == 0)
                     listViewActive = 1;
-            }
-            Clien {
-                id:clien
-                onTextChanged: root.updateIndexModel()
             }
             MySQL{
                 id : mySQL
@@ -143,9 +132,7 @@ ApplicationWindow{
                 }
                 function updateIndexModel(status){
                     if(status === true){
-                        console.log(getDetailInfo())
                         var detailInfo = JSON.parse(getDetailInfo())
-                        console.log("detailInfo length:" + detailInfo.length)
                         userIndex.clear()
                         for(var i=0; i<detailInfo.length; i++){
                             userIndex.append(detailInfo[i])
@@ -212,11 +199,11 @@ ApplicationWindow{
                     userID: listView.currentUserId
                     score:listView.currentScore
                     visible: listViewActive==0 && root.currentIndex == 2
-                    Connections{
+                  /*  Connections{
                         id:test
                         target: root
                         onCurrentIndexChanged:{console.log("I receive a signal!")}
-                    }
+                    }*/
                 }
             }
         }

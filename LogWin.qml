@@ -19,7 +19,6 @@ ApplicationWindow{
     flags: Qt.FramelessWindowHint
     color: "transparent"
     function logOrRegister(order) {
-        console.log("MouseArea is clicked");
         var ac = accountenter.text;
         var pwd = pwdenter.text;
         var errch = 0;
@@ -58,7 +57,6 @@ ApplicationWindow{
         onPressed: {
             pressedX = mouseX
             pressedY = mouseY
-            console.log("firstwin.x:"+ firstwin.x)
         }
         onPositionChanged: {
             firstwin.x += (mouse.x - pressedX)
@@ -94,12 +92,6 @@ ApplicationWindow{
                 else  refer.text = "You entered error account or password,Try Again!"
             }
         }
-
-        Clien {
-            id: toconnect
-            onTextChanged:status()
-        }
-
         TextInput {
             id: accountenter
             x: 160

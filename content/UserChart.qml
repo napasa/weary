@@ -52,7 +52,6 @@ Rectangle {
     property var settings
     property int gridSize: 4
     property real gridStep: gridSize ? (width - canvas.tickMargin) / gridSize : canvas.xGridStep
-//xiugai
     function update() {
         endDate = new Date();
         if (chart.activeChart === "year") {

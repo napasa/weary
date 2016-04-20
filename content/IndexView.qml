@@ -43,8 +43,6 @@ import QtQuick.Window 2.1
 
 Rectangle {
     id: root
-   // width: 320
-   // height: 480
     color: "transparent"
 
     property var userIndex: null
