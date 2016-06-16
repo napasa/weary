@@ -1,11 +1,6 @@
-心路历程：该项目为大学生创新项目，个人感觉很水，不过为了完成很水的WearyMasterde的过程中我也自学到了很多。
-过程蛮长的，大概如下所述。从网上了解到想学Qt语言方面就得先学C++，平台方面又得知Qt是开源的在linux下能更好
-的深入了解他，因此又先得有unix系的操作系统经验。我便按照这个思路来， 先后看了<< C++ Primer >>,
-<<鸟哥的linux私房菜>>，<< unix网络编 程>>， << unix高级编程 >>, << 计算机网络 >>， << shell高级编程 >>，
-还看了ref-man（Reference Of Mysql）， gitpro-en（Git Professional-English）， 还学了JavaScript。 
-在自学的过程中我的WearyMaster源码也在不断进行着剧烈的变化。从最初全C++写客户端到后来C++和QML的混合，再到多线程。
-服务器也从用TCP/IP协议自己写个服务器和自己进行数据管理到后来直接用MySQL数据库。由于在写着软件的时候还不会版
-本管理导致了全C++的那部分没了，后来就只能借鉴QtDemo的外壳自己给他披了一层完全不同的逻辑，这也是该git库上的内容。
-
-现在写代码已经感觉很自由了没有之前手足无措的感觉，有问题Google,实在不会StackOverFlow，也能够流畅的阅读英语文档了，
-我想我现在差不多是个合格的程序员了。
+       Weary is client source code of Weary Master Project which is a teamwork product, It composes of two main components,
+    one is software includes server and client,accomplished totally by me,another is hardware is responsible to acquire 
+    every user base weary data and upload it to server, accomplished by my teamworkers. Client end aims to schematize all 
+    users weary data, It also is where my honor live^_^. And fortunely, I also get a innovate type patent depend on it.
+        
+       keywords:mysql, C++/C, QT, TCP, crossplatform.
