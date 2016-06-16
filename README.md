@@ -8,4 +8,5 @@
      
      Mysql, C++/C, QT, TCP, Crossplatform, Thread
 ## Here some pics and screen shots  
-       ![](https://drive.google.com/open?id=0BzmZHI0uecHic1NwSzNLckZBUm8)
+       ![ScreenShot](content/images/2015120806134977.png?raw=true "Optional Title")
+       
