@@ -8,5 +8,9 @@
      
      Mysql, C++/C, QT, TCP, Crossplatform, Thread
 ## Here some pics and screen shots  
-       [shot](content/images/2015120806134977.png)
+![](https://github.com/napasa/weary/blob/master/content/images/2015120806134977.png) 
+![](https://github.com/napasa/weary/blob/master/content/images/Screenshot%20from%202016-02-05%2015:02:44.png)
+![](https://github.com/napasa/weary/blob/master/content/images/Screenshot%20from%202016-04-25%2018:26:56.png)
+![](https://github.com/napasa/weary/blob/master/content/images/Screenshot%20from%202016-04-25%2018:27:00.png)
+![](https://github.com/napasa/weary/blob/master/content/images/mastermain.png)
        
